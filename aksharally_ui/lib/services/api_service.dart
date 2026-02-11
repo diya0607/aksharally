@@ -4,10 +4,10 @@ import 'package:http/http.dart' as http;
 
 class ApiService {
   // Android emulator → host machine
-  static const String baseUrl = 'http://10.0.2.2:5000';
+  static const String baseUrl = 'http://192.168.0.100:5000';
 
   static Future<String> simplifyTextFromImage(File imageFile) async {
-    final uri = Uri.parse('$baseUrl/simplify');
+    final uri = Uri.parse('$baseUrl/process/ocr-simplify');
 
     try {
       final request = http.MultipartRequest('POST', uri);
