@@ -1,0 +1,56 @@
+import 'dart:io';
+import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+
+class ImagePickerWidget extends StatefulWidget {
+  final Function(File) onImageSelected;
+
+  const ImagePickerWidget({super.key, required this.onImageSelected});
+
+  @override
+  State<ImagePickerWidget> createState() => _ImagePickerWidgetState();
+}
+
+class _ImagePickerWidgetState extends State<ImagePickerWidget> {
+  File? image;
+
+  Future<void> pickImage() async {
+    final picker = ImagePicker();
+    final pickedFile =
+        await picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      final file = File(pickedFile.path);
+      setState(() => image = file);
+      widget.onImageSelected(file);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Container(
+          height: 180,
+          width: double.infinity,
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.grey),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: image == null
+              ? const Center(child: Text('No image selected'))
+              : ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Image.file(image!, fit: BoxFit.cover),
+                ),
+        ),
+        const SizedBox(height: 8),
+        ElevatedButton.icon(
+          onPressed: pickImage,
+          icon: const Icon(Icons.image),
+          label: const Text('Pick Image'),
+        ),
+      ],
+    );
+  }
+}
