@@ -33,7 +33,9 @@ class SplashScreen extends StatelessWidget {
               padding: const EdgeInsets.all(24.0),
               child: PrimaryButton(
                 text: "Get Started",
-                onPressed: () {},
+                onPressed: () {
+  Navigator.pushNamed(context, '/login');
+},
               ),
             ),
           ],
