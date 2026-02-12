@@ -4,3 +4,6 @@ pytesseract
 opencv-python
 pillow
 numpy
+spacy
+transformers
+torch
