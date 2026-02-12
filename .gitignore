@@ -122,3 +122,9 @@ app.*.symbols
 backend/venv/
 backend/__pycache__/
 backend/*.pyc
+
+# Firebase Admin Secret
+backend/firebase_key.json
+
+# Python virtual environment
+venv/
