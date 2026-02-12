@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-
+import '../theme/app_settings.dart';
 import '../services/api_service.dart';
 import '../widgets/image_picker_widget.dart';
 import '../widgets/text_display_widget.dart';
@@ -84,10 +84,12 @@ class _ReaderScreenState extends State<ReaderScreen> {
               child: isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : TextDisplayWidget(
-                      text: simplifiedText.isEmpty
-                          ? 'Simplified text will appear here...'
-                          : simplifiedText,
-                    ),
+  text: simplifiedText.isEmpty
+      ? 'Simplified text will appear here...'
+      : simplifiedText,
+  fontSize: AppSettings.fontSize,
+  lineSpacing: AppSettings.lineSpacing,
+),
             ),
           ],
         ),

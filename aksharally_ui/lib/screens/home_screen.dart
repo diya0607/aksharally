@@ -3,6 +3,8 @@ import '../theme/app_theme.dart';
 import 'reader_screen.dart';
 import 'library_screen.dart';
 import 'settings_screen.dart';
+import 'enter_text_screen.dart';
+import 'upload_file_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -64,7 +66,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  /// SCREEN SWITCHING LOGIC
   Widget _getScreenForIndex(BuildContext context) {
     switch (currentIndex) {
       case 0:
@@ -78,7 +79,6 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  /// HOME DASHBOARD UI
   Widget _buildHomeContent(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -114,7 +114,14 @@ class _HomeScreenState extends State<HomeScreen> {
           icon: Icons.edit_outlined,
           title: "Enter Text",
           subtitle: "Type text manually",
-          onTap: () {},
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const EnterTextScreen(),
+              ),
+            );
+          },
         ),
 
         const SizedBox(height: 15),
@@ -124,7 +131,14 @@ class _HomeScreenState extends State<HomeScreen> {
           icon: Icons.upload_file_outlined,
           title: "Upload File",
           subtitle: "Import image or document",
-          onTap: () {},
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const UploadFileScreen(),
+              ),
+            );
+          },
         ),
 
         const SizedBox(height: 15),
@@ -134,7 +148,13 @@ class _HomeScreenState extends State<HomeScreen> {
           icon: Icons.menu_book_outlined,
           title: "Continue Reading",
           subtitle: "Resume previous session",
-          onTap: () {},
+          onTap: () {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text("No saved reading yet"),
+              ),
+            );
+          },
         ),
       ],
     );
