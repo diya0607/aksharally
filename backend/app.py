@@ -1,3 +1,4 @@
+from routes.auth_routes import auth_bp
 from flask import Flask
 from flask_cors import CORS
 from routes.ocr_routes import ocr_bp
@@ -15,6 +16,7 @@ CORS(app)
 app.register_blueprint(ocr_bp)
 app.register_blueprint(simplify_bp)
 app.register_blueprint(pipeline_bp)
+app.register_blueprint(auth_bp, url_prefix="/auth")
 
 # Health check endpoint (for testing)
 @app.route("/health")
