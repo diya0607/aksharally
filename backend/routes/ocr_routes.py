@@ -17,12 +17,24 @@ def process_ocr():
             "error": "No image file provided"
         }), 400
 
-    # Get image and language
     image = request.files["image"]
     language = request.form.get("language", "eng")
 
-    # Extract text using OCR module
-    extracted_text = extract_text(image, language)
+    # Validate file type
+    if not image.filename.lower().endswith((".png", ".jpg", ".jpeg")):
+        return jsonify({
+            "success": False,
+            "error": "Invalid file type. Only PNG, JPG, JPEG allowed."
+        }), 400
+
+    # Extract text using OCR module (with error handling)
+    try:
+        extracted_text = extract_text(image, language)
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
 
     # Return response
     return jsonify({
