@@ -16,14 +16,20 @@ def extract_text(image_file, language="eng"):
     Supports English (eng) and Hindi (hin).
     """
 
-    # Open image using Pillow
-    image = Image.open(image_file).convert("RGB")
+    # Open image safely 
+    try:
+        image = Image.open(image_file).convert("RGB")
+    except Exception:
+        raise ValueError("Invalid image file")
 
-    # Convert image to NumPy array for OpenCV
+    # Convert image to NumPy array
     image_np = np.array(image)
 
     # Convert RGB image to Grayscale
     gray_image = cv2.cvtColor(image_np, cv2.COLOR_RGB2GRAY)
+
+    # Noise removal 
+    gray_image = cv2.GaussianBlur(gray_image, (5, 5), 0)
 
     # Apply thresholding to improve OCR accuracy
     _, threshold_image = cv2.threshold(
