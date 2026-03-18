@@ -5,10 +5,11 @@ import numpy as np
 from PIL import Image
 
 # Configure Tesseract path (Windows users)
-pytesseract.pytesseract.tesseract_cmd = os.getenv(
-    "TESSERACT_CMD",
-    r"C:\Program Files\Tesseract-OCR\tesseract.exe"
-)
+# pytesseract.pytesseract.tesseract_cmd = os.getenv(
+#    "TESSERACT_CMD",
+ #   r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+#) 
+
 
 def extract_text(image_file, language="eng"):
     """
@@ -16,31 +17,40 @@ def extract_text(image_file, language="eng"):
     Supports English (eng) and Hindi (hin).
     """
 
-    # Open image safely 
+    # Step 1: Open image safely
     try:
         image = Image.open(image_file).convert("RGB")
     except Exception:
         raise ValueError("Invalid image file")
 
-    # Convert image to NumPy array
+    # Step 2: Convert image to NumPy array
     image_np = np.array(image)
 
-    # Convert RGB image to Grayscale
+    # Step 3: Convert to grayscale
     gray_image = cv2.cvtColor(image_np, cv2.COLOR_RGB2GRAY)
 
-    # Noise removal 
-    gray_image = cv2.GaussianBlur(gray_image, (5, 5), 0)
+    # Step 4: Noise removal (better than Gaussian for OCR)
+    gray_image = cv2.medianBlur(gray_image, 3)
 
-    # Apply thresholding to improve OCR accuracy
-    _, threshold_image = cv2.threshold(
-        gray_image, 150, 255, cv2.THRESH_BINARY
+    # Step 5: Adaptive thresholding 
+    threshold_image = cv2.adaptiveThreshold(
+        gray_image,
+        255,
+        cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
+        cv2.THRESH_BINARY,
+        11,
+        2
     )
 
-    # Perform OCR using Tesseract
+    # Step 6: OCR configuration (improves accuracy)
+    custom_config = r'--oem 3 --psm 6'
+
+    # Step 7: Perform OCR
     extracted_text = pytesseract.image_to_string(
         threshold_image,
-        lang=language
+        lang=language,
+        config=custom_config
     )
 
-    # Return cleaned text
+    # Step 8: Return cleaned text
     return extracted_text.strip()
