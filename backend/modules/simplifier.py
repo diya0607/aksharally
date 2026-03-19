@@ -1,14 +1,22 @@
 import spacy
 import re
-import requests
+import os
+from dotenv import load_dotenv
+from google import genai
 
-# Replace with your NEW API key
-API_URL = "https://api-inference.huggingface.co/models/t5-small"
-headers = {
-    "Authorization": "Bearer Yhf_pQrVcuInOSHiounJiXToJcqqRwnMpIwdMW"
-}
+# Load environment variables
+load_dotenv()
 
-# Strong synonym mapping (expanded)
+API_KEY = os.getenv("GEMINI_API_KEY")
+
+# Configure Gemini client
+client = genai.Client(api_key=API_KEY) if API_KEY else None
+if client:
+    print("Using Gemini AI (new SDK)")
+
+# Load spaCy model
+nlp = spacy.load("en_core_web_sm")
+
 SIMPLE_SYNONYMS = {
     "frequently": "often",
     "utilize": "use",
@@ -35,12 +43,8 @@ SIMPLE_SYNONYMS = {
     "grandfather": "grandpa"
 }
 
-# Load spaCy model
-nlp = spacy.load("en_core_web_sm")
-
 
 def clean_ocr_errors(text):
-    """Fix common OCR mistakes"""
     corrections = {
         "arc": "are",
         "storics": "stories",
@@ -56,37 +60,43 @@ def clean_ocr_errors(text):
     return text
 
 
-def simplify_text(text):
+def clean_output(text):
     """
-    Dyslexia-friendly simplification pipeline
+    Clean Gemini or fallback output
     """
+    text = re.sub(r"\n+", "\n", text)       # remove extra newlines
+    text = re.sub(r"[ ]{2,}", " ", text)    # remove extra spaces
+    return text.strip()
 
+
+def simplify_text(text):
     if not text.strip():
         return ""
 
     # STEP 1: Clean OCR errors
     text = clean_ocr_errors(text)
 
-    # STEP 2: Try AI (optional enhancement)
-    try:
-        response = requests.post(
-            API_URL,
-            headers=headers,
-            json={
-                "inputs": "Simplify this text using very easy words for children:\n" + text,
-                "parameters": {"max_length": 150}
-            }
-        )
+    # STEP 2: Gemini AI
+    if client:
+        try:
+            response = client.models.generate_content(
+                model="gemini-2.0-flash",
+                contents=f"""
+Simplify this text for a child or dyslexic reader.
+Use very simple words and short sentences.
+Keep line breaks if present.
 
-        result = response.json()
+{text}
+"""
+            )
 
-        if isinstance(result, list) and "generated_text" in result[0]:
-            return result[0]["generated_text"]
+            if response and hasattr(response, "text") and response.text:
+                return clean_output(response.text)
 
-    except Exception:
-        pass  # fallback below
+        except Exception as e:
+            print("Gemini error:", e)
 
-    # STEP 3: Rule-based simplification (MAIN LOGIC)
+    # STEP 3: Rule-based fallback
     doc = nlp(text)
     simplified_sentences = []
 
@@ -100,7 +110,6 @@ def simplify_text(text):
             if lower_word in SIMPLE_SYNONYMS:
                 replacement = SIMPLE_SYNONYMS[lower_word]
 
-                # Preserve capitalization
                 if word[0].isupper():
                     replacement = replacement.capitalize()
 
@@ -108,26 +117,21 @@ def simplify_text(text):
             else:
                 words.append(word)
 
-        # Rebuild sentence
         new_sentence = " ".join(words)
 
-        # Simplify grammar
-        new_sentence = new_sentence.replace("had been", "was")
-        new_sentence = new_sentence.replace("it is believed that", "")
+        # Break long sentences
+        if len(new_sentence.split()) > 12:
+            parts = new_sentence.split(",")
+            new_sentence = ". ".join(parts)
 
-        # Clean formatting
         new_sentence = re.sub(r"\s+", " ", new_sentence)
         new_sentence = re.sub(r"\s+\.", ".", new_sentence)
         new_sentence = new_sentence.strip()
 
-        # Shorten long sentences (VERY IMPORTANT)
-        if len(new_sentence.split()) > 12:
-            new_sentence = new_sentence.replace(",", ".")
-
-        # Ensure proper ending
         if not new_sentence.endswith("."):
             new_sentence += "."
 
         simplified_sentences.append(new_sentence)
 
-    return " ".join(simplified_sentences)
+    # KEEP STRUCTURE (important)
+    return "\n".join(simplified_sentences)

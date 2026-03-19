@@ -128,3 +128,6 @@ backend/firebase_key.json
 
 # Python virtual environment
 venv/
+
+# Environment variables
+.env
