@@ -3,6 +3,7 @@ import pytesseract
 import cv2
 import numpy as np
 from PIL import Image
+pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR"
 
 # Configure Tesseract path (Windows users)
 pytesseract.pytesseract.tesseract_cmd = os.getenv(

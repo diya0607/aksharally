@@ -16,14 +16,12 @@ class TextDisplayWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Text(
-        text,
-        style: TextStyle(
-          fontSize: fontSize,
-          height: lineSpacing,
-          color: textColor,
-        ),
+    return Text(
+      text,
+      style: TextStyle(
+        fontSize: fontSize,
+        height: lineSpacing,
+        color: textColor,
       ),
     );
   }

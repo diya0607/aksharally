@@ -3,15 +3,19 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 
 class ApiService {
-  // Android emulator → host machine
-  static const String baseUrl = 'http://192.168.0.100:5000';
+  // Use this for REAL PHONE (same WiFi)
+  static const String baseUrl = "http://192.168.1.11:5000";
 
-  static Future<String> simplifyTextFromImage(File imageFile) async {
-    final uri = Uri.parse('$baseUrl/process/ocr-simplify');
+  // Use this for emulator (if needed)
+  // static const String baseUrl = "http://10.0.2.2:5000";
+
+  static Future<String> processImage(File imageFile) async {
+    final uri = Uri.parse('$baseUrl/process');
 
     try {
       final request = http.MultipartRequest('POST', uri);
 
+      // Send image
       request.files.add(
         await http.MultipartFile.fromPath(
           'image',
@@ -19,13 +23,20 @@ class ApiService {
         ),
       );
 
-      final response = await request.send();
+      // Send language
+      request.fields['language'] = 'eng';
 
-      final responseBody = await response.stream.bytesToString();
-
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+      final responseBody = response.body;
       if (response.statusCode == 200) {
         final data = json.decode(responseBody);
-        return data['simplified_text'] ?? 'No text returned';
+
+        if (data['success'] == true) {
+          return data['simplified_text'] ?? 'No text returned';
+        } else {
+          throw Exception(data['error']);
+        }
       } else {
         throw Exception(
           'Backend error ${response.statusCode}: $responseBody',
