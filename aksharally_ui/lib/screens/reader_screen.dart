@@ -32,6 +32,21 @@ class _ReaderScreenState extends State<ReaderScreen> {
   int currentIndex = -1;
   Timer? _timer;
 
+  static const blueGradient = [
+    Color(0xFF1565C0),
+    Color(0xFF42A5F5),
+  ];
+
+  static const creamGradient = [
+    Color(0xFFFFF3E0),
+    Color(0xFFFFE0B2),
+  ];
+
+  static const yellowGradient = [
+    Color(0xFFFFF59D),
+    Color(0xFFFFF176),
+  ];
+
   @override
   void initState() {
     super.initState();
@@ -88,21 +103,12 @@ class _ReaderScreenState extends State<ReaderScreen> {
       setState(() {
         simplifiedText = result;
         words = result.split(" ");
-
-        LibraryStorage.addItem(
-          LibraryItem(
-            title: "Reading ${DateTime.now().hour}:${DateTime.now().minute}",
-            content: simplifiedText,
-            date: DateTime.now(),
-          ),
-        );
       });
 
       if (autoRead) {
         await _tts.setRate(speechRate);
         startReading();
       }
-
     } catch (e) {
       setState(() {
         simplifiedText = "❌ Error: $e";
@@ -143,13 +149,6 @@ class _ReaderScreenState extends State<ReaderScreen> {
     });
   }
 
-  @override
-  void dispose() {
-    _timer?.cancel();
-    _tts.stop();
-    super.dispose();
-  }
-
   Widget buildHighlightedText() {
     if (simplifiedText.isEmpty) {
       return Text(
@@ -183,139 +182,155 @@ class _ReaderScreenState extends State<ReaderScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: getBackgroundColor(),
+
+      /// HEADER
       appBar: AppBar(
         elevation: 0,
         backgroundColor: Colors.transparent,
-        title: const Text(
-          'AksharAlly',
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(colors: creamGradient),
+          ),
+        ),
+        title: ShaderMask(
+          shaderCallback: (bounds) =>
+              const LinearGradient(colors: blueGradient).createShader(bounds),
+          child: const Text(
+            'AksharAlly',
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.w900,
+              color: Colors.white,
+            ),
+          ),
         ),
         centerTitle: true,
       ),
+
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: ListView(
           children: [
-            /// IMAGE CARD
+
+            /// IMAGE
             Container(
+              height: 180,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
                 color: Colors.grey.shade100,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black12,
-                    blurRadius: 8,
-                    offset: Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Column(
-                children: [
-                  Container(
-                    height: 180,
-                    width: double.infinity,
-                    child: selectedImage == null
-                        ? const Center(child: Text("📷 No image selected"))
-                        : ClipRRect(
-                            borderRadius: BorderRadius.circular(16),
-                            child: Image.file(selectedImage!, fit: BoxFit.cover),
-                          ),
-                  ),
-                  const SizedBox(height: 10),
-                  ElevatedButton.icon(
-                    onPressed: pickImage,
-                    icon: const Icon(Icons.image),
-                    label: const Text("Choose Image"),
-                  ),
-                  const SizedBox(height: 10),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 20),
-
-            /// SIMPLIFY BUTTON
-            ElevatedButton(
-              onPressed: isLoading ? null : onSimplifyPressed,
-              child: isLoading
-                  ? const CircularProgressIndicator(color: Colors.white)
-                  : const Text("Simplify Text"),
-            ),
-
-            const SizedBox(height: 20),
-
-            /// CONTROLS CARD
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(16),
-                color: Colors.grey.shade100,
               ),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: simplifiedText.isEmpty ? null : startReading,
-                          child: const Text("▶ Start"),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: stopReading,
-                          child: const Text("⏹ Stop"),
-                        ),
-                      ),
-                    ],
-                  ),
+              child: selectedImage == null
+                  ? const Center(child: Text("📷 No image selected"))
+                  : ClipRRect(
+                      borderRadius: BorderRadius.circular(16),
+                      child: Image.file(selectedImage!, fit: BoxFit.cover),
+                    ),
+            ),
 
-                  const SizedBox(height: 10),
+            const SizedBox(height: 10),
 
-                  SwitchListTile(
-                    title: const Text("Auto Read"),
-                    value: autoRead,
-                    onChanged: (value) {
-                      setState(() {
-                        autoRead = value;
-                      });
-                    },
-                  ),
+            /// BUTTONS
+            _yellowButton("Choose Image", pickImage),
 
-                  const Text("Speech Speed"),
-                  Slider(
-                    value: speechRate,
-                    min: 0.2,
-                    max: 0.8,
-                    divisions: 6,
-                    label: speechRate.toStringAsFixed(1),
-                    onChanged: (value) {
-                      setState(() {
-                        speechRate = value;
-                      });
-                      _tts.setRate(value);
-                    },
+            const SizedBox(height: 10),
+
+            _yellowButton(
+              "Simplify Text",
+              isLoading ? () {} : onSimplifyPressed,
+              isLoading: isLoading,
+            ),
+
+            const SizedBox(height: 10),
+
+            Row(
+              children: [
+                Expanded(
+                  child: _yellowButton(
+                    "Start",
+                    startReading,
+                    icon: Icons.play_arrow,
                   ),
-                ],
-              ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: _yellowButton(
+                    "Stop",
+                    stopReading,
+                    icon: Icons.stop,
+                  ),
+                ),
+              ],
             ),
 
             const SizedBox(height: 20),
 
-            /// OUTPUT CARD
+            /// AUTO READ
+            SwitchListTile(
+              title: Text(
+                "Auto Read",
+                style: TextStyle(color: getTextColor()),
+              ),
+              value: autoRead,
+              onChanged: (v) => setState(() => autoRead = v),
+            ),
+
+            const SizedBox(height: 20),
+
+            /// OUTPUT BOX
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
+                color: getBackgroundColor(),
                 borderRadius: BorderRadius.circular(16),
-                color: Colors.grey.shade100,
                 boxShadow: [
-                  BoxShadow(color: Colors.black12, blurRadius: 6),
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 6,
+                  ),
                 ],
               ),
               child: buildHighlightedText(),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  /// 🔥 UPDATED BUTTON WITH ICON SUPPORT
+  Widget _yellowButton(
+    String text,
+    VoidCallback onTap, {
+    bool isLoading = false,
+    IconData? icon,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 14),
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(colors: yellowGradient),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Center(
+          child: isLoading
+              ? const CircularProgressIndicator(color: Colors.black)
+              : Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    if (icon != null) ...[
+                      Icon(icon, color: Colors.black),
+                      const SizedBox(width: 6),
+                    ],
+                    Text(
+                      text,
+                      style: const TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
         ),
       ),
     );
