@@ -1,118 +1,57 @@
 from flask import Blueprint, request, jsonify
+from modules.simplifier import process_text
 from modules.ocr import extract_text
-from modules.simplifier import simplify_text
+import numpy as np
+import cv2
 
 pipeline_bp = Blueprint("pipeline", __name__)
 
-<<<<<<< HEAD
-@pipeline_bp.route("/process/full", methods=["POST"])
-def process_full():
-    """
-    Full pipeline: Image → OCR → Simplify
-    """
 
-    # Step 1: Check image
-    if "image" not in request.files:
-        return jsonify({
-            "success": False,
-            "error": "No image file provided"
-        }), 400
-
+@pipeline_bp.route("/process/ocr-format", methods=["POST"])
+def ocr_and_format():
     try:
-        # Step 2: Get image and language
-        image = request.files["image"]
-        language = request.form.get("language", "eng")
+        if "image" not in request.files:
+            return jsonify({
+                "success": False,
+                "error": "No image provided"
+            }), 400
 
-        # Step 3: OCR
-        extracted_text = extract_text(image, language)
+        image_file = request.files["image"]
+        image_bytes = image_file.read()
 
-        # Step 4: Simplify
-        simplified_text = simplify_text(extracted_text)
+        if not image_bytes:
+            return jsonify({
+                "success": False,
+                "error": "Empty image file"
+            }), 400
 
-        # Step 5: Return response
+        np_array = np.frombuffer(image_bytes, np.uint8)
+        image = cv2.imdecode(np_array, cv2.IMREAD_COLOR)
+
+        if image is None:
+            return jsonify({
+                "success": False,
+                "error": "Invalid image format"
+            }), 400
+
+        extracted_text = extract_text(image)
+
+        if not extracted_text:
+            return jsonify({
+                "success": False,
+                "error": "No text detected"
+            }), 400
+
+        formatted_text = process_text(extracted_text)
+
         return jsonify({
             "success": True,
-            "extracted_text": extracted_text,
-            "simplified_text": simplified_text
+            "original_text": extracted_text,
+            "formatted_text": formatted_text
         })
 
     except Exception as e:
         return jsonify({
             "success": False,
             "error": str(e)
-=======
-
-# ✅ MAIN ROUTE (Flutter will use this)
-@pipeline_bp.route("/process", methods=["POST"])
-def process_full():
-    try:
-        # Check image
-        if "image" not in request.files:
-            return jsonify({
-                "success": False,
-                "error": "No image provided"
-            }), 400
-
-        image = request.files["image"]
-        language = request.form.get("language", "eng")
-
-        # OCR
-        extracted_text = extract_text(image, language)
-
-        if not extracted_text:
-            return jsonify({
-                "success": False,
-                "error": "No text detected from image"
-            }), 400
-
-        # Simplify
-        simplified_text = simplify_text(extracted_text)
-
-        return jsonify({
-            "success": True,
-            "original_text": extracted_text,
-            "simplified_text": simplified_text
-        }), 200
-
-    except Exception as e:
-        return jsonify({
-            "success": False,
-            "error": f"Server error: {str(e)}"
-        }), 500
-
-
-# ✅ OPTIONAL ADVANCED ROUTE (same logic)
-@pipeline_bp.route("/process/ocr-simplify", methods=["POST"])
-def ocr_and_simplify():
-    try:
-        if "image" not in request.files:
-            return jsonify({
-                "success": False,
-                "error": "No image provided"
-            }), 400
-
-        image = request.files["image"]
-        language = request.form.get("language", "eng")
-
-        extracted_text = extract_text(image, language)
-
-        if not extracted_text:
-            return jsonify({
-                "success": False,
-                "error": "No text detected from image"
-            }), 400
-
-        simplified_text = simplify_text(extracted_text)
-
-        return jsonify({
-            "success": True,
-            "original_text": extracted_text,
-            "simplified_text": simplified_text
-        }), 200
-
-    except Exception as e:
-        return jsonify({
-            "success": False,
-            "error": f"Server error: {str(e)}"
->>>>>>> login-feature
         }), 500

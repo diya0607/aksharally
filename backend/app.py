@@ -1,3 +1,5 @@
+import os
+from dotenv import load_dotenv
 from routes.auth_routes import auth_bp
 from flask import Flask
 from flask_cors import CORS
@@ -5,6 +7,8 @@ from routes.ocr_routes import ocr_bp
 from routes.simplify_routes import simplify_bp
 from routes.pipeline_routes import pipeline_bp
 
+# Load environment variables from .env file
+load_dotenv()
 
 # Create Flask application
 app = Flask(__name__)
@@ -30,9 +34,4 @@ def index():
 
 # Run the Flask server
 if __name__ == "__main__":
-<<<<<<< HEAD
     app.run(debug=True, host="0.0.0.0", port=5000)
-=======
-    app.run(host="0.0.0.0", port=5000, debug=True)
-
->>>>>>> login-feature

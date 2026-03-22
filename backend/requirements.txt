@@ -4,3 +4,7 @@ pytesseract
 opencv-python
 pillow
 numpy
+easyocr
+google-genai
+python-dotenv
+firebase-admin

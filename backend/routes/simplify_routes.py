@@ -1,16 +1,11 @@
 from flask import Blueprint, request, jsonify
-from modules.simplifier import simplify_text
+from modules.simplifier import process_text
 
-# Create Blueprint
 simplify_bp = Blueprint("simplify", __name__)
 
 
-@simplify_bp.route("/process/simplify", methods=["POST"])
+@simplify_bp.route("/process/text-format", methods=["POST"])
 def process_simplify():
-    """
-    API endpoint for text simplification.
-    """
-
     data = request.get_json()
 
     if not data or "text" not in data:
@@ -21,9 +16,10 @@ def process_simplify():
 
     original_text = data["text"]
 
-    simplified = simplify_text(original_text)
+    formatted_text = process_text(original_text)
 
     return jsonify({
         "success": True,
-        "simplified_text": simplified
+        "original_text": original_text,
+        "formatted_text": formatted_text
     })

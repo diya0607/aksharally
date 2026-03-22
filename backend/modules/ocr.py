@@ -1,103 +1,38 @@
-import os
-import pytesseract
 import cv2
 import numpy as np
 from PIL import Image
-<<<<<<< HEAD
 import easyocr
 
-# Initialize EasyOCR reader (load once)
-reader = None
-
-def get_easyocr_reader():
-    global reader
-    if reader is None:
-        print("Loading EasyOCR model...")
-        reader = easyocr.Reader(['en'], gpu=False)
-    return reader
-
-# (Optional) Set this if needed (Windows users)
-# pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+reader = easyocr.Reader(['en', 'hi'])
 
 
 def preprocess_image(image_np):
-    """
-    Improve image quality for OCR
-    """
+    if len(image_np.shape) == 3:
+        gray = cv2.cvtColor(image_np, cv2.COLOR_BGR2GRAY)
+    else:
+        gray = image_np
 
-    # Convert to grayscale
-    gray = cv2.cvtColor(image_np, cv2.COLOR_RGB2GRAY)
+    height, width = gray.shape
+    if height < 1000 or width < 1000:
+        gray = cv2.resize(gray, None, fx=1.5, fy=1.5, interpolation=cv2.INTER_CUBIC)
 
-    # Resize (VERY IMPORTANT for accuracy)
-    gray = cv2.resize(gray, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC)
+    clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
+    enhanced = clahe.apply(gray)
 
-    # Denoise
-    gray = cv2.medianBlur(gray, 3)
+    denoised = cv2.fastNlMeansDenoising(enhanced, h=10)
 
-    # Adaptive threshold (handles uneven lighting)
-    thresh = cv2.adaptiveThreshold(
-        gray,
-        255,
-        cv2.ADAPTIVE_THRESH_MEAN_C,
-        cv2.THRESH_BINARY,
-        15,
-        10
-    )
-
-    return thresh
+    return denoised
 
 
-def extract_text_easyocr(image_np):
-    reader = get_easyocr_reader()
-    result = reader.readtext(image_np, detail=0)
-    return "\n".join(result)
-=======
-pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR"
->>>>>>> login-feature
+def extract_text(image_input):
+    if isinstance(image_input, np.ndarray):
+        image_np = image_input
+    else:
+        image = Image.open(image_input).convert("RGB")
+        image_np = np.array(image)
 
-
-def extract_text(image_file, language="eng"):
-    """
-    Extract text using Tesseract with EasyOCR fallback
-    """
-
-    # Step 1: Load image safely
-    try:
-        image = Image.open(image_file).convert("RGB")
-    except Exception:
-        raise ValueError("Invalid image file")
-
-    image_np = np.array(image)
-
-    # Step 2: Preprocess image
     processed = preprocess_image(image_np)
 
-    # Step 3: Tesseract config
-    custom_config = r'--oem 3 --psm 6'
+    results = reader.readtext(processed, detail=0, paragraph=True)
 
-    try:
-        # Step 4: Run Tesseract OCR
-        text = pytesseract.image_to_string(
-            processed,
-            lang=language,
-            config=custom_config
-        )
-
-        # Step 5: Clean & structure output (KEEP line breaks)
-        lines = [line.strip() for line in text.split("\n") if line.strip()]
-        final_text = "\n".join(lines)
-
-        # Remove weird/unprintable characters
-        final_text = ''.join(c for c in final_text if c.isprintable())
-
-        # Step 6: Detect bad OCR → fallback
-        if len(final_text.split()) < 5:
-            raise Exception("Poor OCR output")
-
-        return final_text
-
-    except Exception as e:
-        print("Tesseract failed, switching to EasyOCR:", e)
-
-        # Step 7: EasyOCR fallback
-        return extract_text_easyocr(processed)
+    return " ".join(results).strip()
