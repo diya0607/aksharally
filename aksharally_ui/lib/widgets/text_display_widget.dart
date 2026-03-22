@@ -2,25 +2,26 @@ import 'package:flutter/material.dart';
 
 class TextDisplayWidget extends StatelessWidget {
   final String text;
+  final double fontSize;
+  final double lineSpacing;
+  final Color textColor;
 
-  const TextDisplayWidget({super.key, required this.text});
+  const TextDisplayWidget({
+    super.key,
+    required this.text,
+    required this.fontSize,
+    required this.lineSpacing,
+    required this.textColor,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: Colors.grey.shade100,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: SingleChildScrollView(
-        child: Text(
-          text.isEmpty
-              ? 'Simplified text will appear here...'
-              : text,
-          style: const TextStyle(fontSize: 16),
-        ),
+    return Text(
+      text,
+      style: TextStyle(
+        fontSize: fontSize,
+        height: lineSpacing,
+        color: textColor,
       ),
     );
   }

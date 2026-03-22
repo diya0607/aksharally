@@ -118,6 +118,7 @@ app.*.symbols
 !/packages/flutter_tools/test/data/dart_dependencies_test/**/.packages
 !/dev/ci/**/Gemfile.lock
 
+<<<<<<< HEAD
 # Backend (Python)
 backend/venv/
 backend/__pycache__/
@@ -131,3 +132,9 @@ venv/
 
 # Environment variables
 .env
+=======
+# Python
+__pycache__/
+*.pyc
+venv/
+>>>>>>> login-feature

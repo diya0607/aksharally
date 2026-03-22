@@ -3,6 +3,7 @@ import pytesseract
 import cv2
 import numpy as np
 from PIL import Image
+<<<<<<< HEAD
 import easyocr
 
 # Initialize EasyOCR reader (load once)
@@ -50,6 +51,9 @@ def extract_text_easyocr(image_np):
     reader = get_easyocr_reader()
     result = reader.readtext(image_np, detail=0)
     return "\n".join(result)
+=======
+pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR"
+>>>>>>> login-feature
 
 
 def extract_text(image_file, language="eng"):

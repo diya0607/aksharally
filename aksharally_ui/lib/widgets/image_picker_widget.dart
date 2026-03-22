@@ -12,7 +12,7 @@ class ImagePickerWidget extends StatefulWidget {
 }
 
 class _ImagePickerWidgetState extends State<ImagePickerWidget> {
-  File? image;
+  File? _image;
 
   Future<void> pickImage() async {
     final picker = ImagePicker();
@@ -21,7 +21,11 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
 
     if (pickedFile != null) {
       final file = File(pickedFile.path);
-      setState(() => image = file);
+
+      setState(() {
+        _image = file;
+      });
+
       widget.onImageSelected(file);
     }
   }
@@ -30,25 +34,30 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
   Widget build(BuildContext context) {
     return Column(
       children: [
+        /// FIX: Give FIXED HEIGHT
         Container(
-          height: 180,
+          height: 200,
           width: double.infinity,
           decoration: BoxDecoration(
             border: Border.all(color: Colors.grey),
             borderRadius: BorderRadius.circular(12),
           ),
-          child: image == null
-              ? const Center(child: Text('No image selected'))
+          child: _image == null
+              ? const Center(child: Text("No image selected"))
               : ClipRRect(
                   borderRadius: BorderRadius.circular(12),
-                  child: Image.file(image!, fit: BoxFit.cover),
+                  child: Image.file(
+                    _image!,
+                    fit: BoxFit.cover,
+                  ),
                 ),
         ),
-        const SizedBox(height: 8),
-        ElevatedButton.icon(
+
+        const SizedBox(height: 10),
+
+        ElevatedButton(
           onPressed: pickImage,
-          icon: const Icon(Icons.image),
-          label: const Text('Pick Image'),
+          child: const Text("Pick Image"),
         ),
       ],
     );
