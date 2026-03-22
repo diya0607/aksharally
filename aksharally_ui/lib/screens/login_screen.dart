@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../widgets/primary_button.dart';
-
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -12,6 +11,11 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   bool isLogin = true;
   bool obscurePassword = true;
+
+  static const gradientColors = [
+    Color(0xFF1565C0),
+    Color(0xFF42A5F5),
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -27,15 +31,23 @@ class _LoginScreenState extends State<LoginScreen> {
                 children: [
                   const SizedBox(height: 40),
 
-                  const Icon(
-                    Icons.menu_book_rounded,
-                    size: 70,
-                    color: AppTheme.primaryPink,
+                  /// 🔵 BOOK ICON
+                  Container(
+                    padding: const EdgeInsets.all(18),
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: LinearGradient(colors: gradientColors),
+                    ),
+                    child: const Icon(
+                      Icons.menu_book_rounded,
+                      size: 40,
+                      color: Colors.white,
+                    ),
                   ),
 
                   const SizedBox(height: 30),
 
-                  /// LOGIN / REGISTER TOGGLE
+                  /// 🔵 LOGIN / REGISTER TOGGLE
                   Container(
                     decoration: BoxDecoration(
                       color: AppTheme.lightGrey,
@@ -53,12 +65,23 @@ class _LoginScreenState extends State<LoginScreen> {
                               padding:
                                   const EdgeInsets.symmetric(vertical: 14),
                               decoration: BoxDecoration(
-                                color: isLogin
-                                    ? Colors.white
-                                    : Colors.transparent,
+                                gradient: isLogin
+                                    ? const LinearGradient(
+                                        colors: gradientColors)
+                                    : null,
                                 borderRadius: BorderRadius.circular(30),
                               ),
-                              child: const Center(child: Text("Login")),
+                              child: Center(
+                                child: Text(
+                                  "Login",
+                                  style: TextStyle(
+                                    color: isLogin
+                                        ? Colors.white
+                                        : Colors.black,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
                             ),
                           ),
                         ),
@@ -72,12 +95,23 @@ class _LoginScreenState extends State<LoginScreen> {
                               padding:
                                   const EdgeInsets.symmetric(vertical: 14),
                               decoration: BoxDecoration(
-                                color: !isLogin
-                                    ? Colors.white
-                                    : Colors.transparent,
+                                gradient: !isLogin
+                                    ? const LinearGradient(
+                                        colors: gradientColors)
+                                    : null,
                                 borderRadius: BorderRadius.circular(30),
                               ),
-                              child: const Center(child: Text("Register")),
+                              child: Center(
+                                child: Text(
+                                  "Register",
+                                  style: TextStyle(
+                                    color: !isLogin
+                                        ? Colors.white
+                                        : Colors.black,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
                             ),
                           ),
                         ),
@@ -87,9 +121,19 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   const SizedBox(height: 40),
 
-                  Text(
-                    isLogin ? "Welcome Back!" : "Create Account",
-                    style: AppTheme.headingStyle,
+                  /// 🔵 HEADING
+                  ShaderMask(
+                    shaderCallback: (bounds) => const LinearGradient(
+                      colors: gradientColors,
+                    ).createShader(bounds),
+                    child: Text(
+                      isLogin ? "Welcome Back!" : "Create Account",
+                      style: const TextStyle(
+                        fontSize: 26,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.white,
+                      ),
+                    ),
                   ),
 
                   const SizedBox(height: 30),
@@ -139,25 +183,50 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   const SizedBox(height: 10),
 
+                  /// 🔵 FORGOT PASSWORD
                   Align(
                     alignment: Alignment.centerRight,
-                    child: Text(
+                    child: const Text(
                       "Forgot Password?",
-                      style:
-                          TextStyle(color: AppTheme.primaryGreen),
+                      style: TextStyle(
+                        color: Color(0xFF1565C0),
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ),
 
                   const SizedBox(height: 25),
 
-                  /// LOGIN BUTTON
-                  PrimaryButton(
-                    text: isLogin ? "Login" : "Register",
-                    onPressed: () {
-                      Navigator.pushReplacementNamed(
-                          context, '/home');
-                    },
-                  ),
+                  /// 🔵 LOGIN BUTTON (GRADIENT REPLACEMENT)
+                  InkWell(
+  borderRadius: BorderRadius.circular(30),
+  onTap: () {
+    Navigator.pushReplacementNamed(context, '/home');
+  },
+  child: Container(
+    width: double.infinity,
+    padding: const EdgeInsets.symmetric(vertical: 14),
+    decoration: BoxDecoration(
+      gradient: const LinearGradient(
+        colors: [
+          Color(0xFF66BB6A), // light green
+          Color(0xFF43A047), // darker green
+        ],
+      ),
+      borderRadius: BorderRadius.circular(30),
+    ),
+    child: Center(
+      child: Text(
+        isLogin ? "Login" : "Register",
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 16,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    ),
+  ),
+),
 
                   const SizedBox(height: 30),
 
@@ -168,12 +237,12 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   const SizedBox(height: 20),
 
-                  /// GOOGLE BUTTON
+                  /// 🔵 GOOGLE BUTTON
                   _socialButton(context, "Continue with Google"),
 
                   const SizedBox(height: 15),
 
-                  /// APPLE BUTTON
+                  /// 🔵 APPLE BUTTON
                   _socialButton(context, "Continue with Apple"),
 
                   const SizedBox(height: 40),
@@ -186,6 +255,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
+  /// 🔵 SOCIAL BUTTON
   Widget _socialButton(BuildContext context, String text) {
     return InkWell(
       borderRadius: BorderRadius.circular(20),
@@ -197,10 +267,18 @@ class _LoginScreenState extends State<LoginScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 14),
         decoration: BoxDecoration(
-          color: Colors.white,
+          gradient: const LinearGradient(colors: gradientColors),
           borderRadius: BorderRadius.circular(20),
         ),
-        child: Center(child: Text(text)),
+        child: Center(
+          child: Text(
+            text,
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
       ),
     );
   }

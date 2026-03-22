@@ -16,52 +16,109 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int currentIndex = 0;
 
+  static const blueGradient = [
+    Color(0xFF1565C0),
+    Color(0xFF42A5F5),
+  ];
+
+  static const creamGradient = [
+    Color(0xFFFFF3E0),
+    Color(0xFFFFE0B2),
+  ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: Colors.transparent,
 
+      /// 🔥 APP BAR (FIXED CREAM GRADIENT)
       appBar: AppBar(
-        backgroundColor: AppTheme.primaryPink,
         elevation: 0,
-        title: const Text("AksharAlly"),
         centerTitle: true,
-      ),
+        backgroundColor: Colors.transparent,
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: creamGradient,
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
 
-      body: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 420),
-          child: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: _getScreenForIndex(context),
+        /// 🔥 GRADIENT TEXT TITLE
+        title: ShaderMask(
+          shaderCallback: (bounds) => const LinearGradient(
+            colors: blueGradient,
+          ).createShader(bounds),
+          child: const Text(
+            "AksharAlly",
+            style: TextStyle(
+              fontWeight: FontWeight.w900,
+              fontSize: 22,
+              color: Colors.white,
             ),
           ),
         ),
       ),
 
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: currentIndex,
-        selectedItemColor: AppTheme.primaryGreen,
-        onTap: (index) {
-          setState(() {
-            currentIndex = index;
-          });
-        },
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home_outlined),
-            label: "Home",
+      /// 🔥 BODY (BLUE BACKGROUND)
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: blueGradient,
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.book_outlined),
-            label: "Library",
+        ),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 420),
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: _getScreenForIndex(context),
+              ),
+            ),
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings_outlined),
-            label: "Settings",
+        ),
+      ),
+
+      /// 🔥 NAV BAR (CREAM GRADIENT FIX)
+      bottomNavigationBar: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: creamGradient,
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
-        ],
+        ),
+        child: BottomNavigationBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          currentIndex: currentIndex,
+          selectedItemColor: const Color(0xFF1565C0),
+          unselectedItemColor: Colors.grey,
+          onTap: (index) {
+            setState(() {
+              currentIndex = index;
+            });
+          },
+          items: const [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.home_outlined),
+              label: "Home",
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.book_outlined),
+              label: "Library",
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.settings_outlined),
+              label: "Settings",
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -85,9 +142,13 @@ class _HomeScreenState extends State<HomeScreen> {
       children: [
         const SizedBox(height: 10),
 
-        Text(
+        const Text(
           "Welcome Back!",
-          style: AppTheme.headingStyle,
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 24,
+            fontWeight: FontWeight.w800,
+          ),
         ),
 
         const SizedBox(height: 30),
@@ -177,7 +238,7 @@ class _HomeScreenState extends State<HomeScreen> {
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withOpacity(0.08),
               blurRadius: 8,
               offset: const Offset(0, 3),
             ),
@@ -185,7 +246,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         child: Row(
           children: [
-            Icon(icon, size: 30, color: AppTheme.primaryGreen),
+            Icon(icon, size: 30, color: const Color(0xFF1565C0)),
             const SizedBox(width: 15),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -194,7 +255,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   title,
                   style: const TextStyle(
                     fontSize: 16,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
                 const SizedBox(height: 3),
